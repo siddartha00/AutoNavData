@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import LifecycleNode, Node
 
@@ -16,7 +16,11 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(pkg_tb4_gz, 'launch', 'turtlebot4_gz.launch.py')
         ),
-        launch_arguments={'nav2': 'true', 'slam': 'true', 'world': 'maze', 'rviz': 'true', 'params_file': custom_nav2_params,}.items()
+        launch_arguments={'nav2': 'true',
+                          'slam': 'true',
+                          'world': 'maze',
+                          'rviz': 'true',
+                          'params_file': custom_nav2_params}.items()
     )
 
     # 2. Your Data Collection Lifecycle Node
@@ -49,46 +53,9 @@ def generate_launch_description():
                                     'frontier_navigator']}]
     )
 
-    # keepout_filter_node = Node(
-    #     package='nav2_map_server',
-    #     executable='map_server',
-    #     name='filter_mask_server',
-    #     output='screen',
-    #     parameters=[{
-    #         'yaml_filename': '/ros2_ws/src/e2e_collector/maps/keepout.yaml',
-    #         'use_sim_time': True
-    #     }]
-    # )
-
-    # costmap_filter_info_server = Node(
-    #     package='nav2_map_server',
-    #     executable='costmap_filter_info_server',
-    #     name='costmap_filter_info_server',
-    #     output='screen',
-    #     parameters=[{
-    #         'type': 0, # 0 for keepout zones
-    #         'filter_info_topic': '/costmap_filter_info',
-    #         'mask_topic': '/keepout_filter_mask',
-    #         'base_variable': 0.0,
-    #         'multiplier': 1.0
-    #     }]
-    # )
-
-    # delayed_collector_and_manager = TimerAction(
-    #     period=10.0,
-    #     actions=[
-    #         collector_node,
-    #         lc_manager,
-    #         # If you have a separate spawn node for the dock, put it here
-    #     ]
-    # )
-
     return LaunchDescription([
         simulator,
-        # delayed_collector_and_manager,
         frontier_node,
         collector_node,
         lc_manager,
-        # keepout_filter_node,
-        # costmap_filter_info_server
     ])

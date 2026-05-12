@@ -10,8 +10,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/collector.launch.py']),
-        # ('share/' + package_name + '/config', ['config/nav2_params.yaml']),
+        ('share/' + package_name + '/launch', ['launch/collector.launch.py',
+                                               'launch/wall_follower.launch.py']),
+        ('share/' + package_name + '/config', ['config/nav2_params.yaml']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -28,6 +29,7 @@ setup(
         'console_scripts': [
             'data_logger = e2e_collector.collector_node:main',
             'frontier_navigator = e2e_collector.frontier_navigation:main',
+            'wall_follower = e2e_collector.wall_follower:main',
         ],
     },
 )

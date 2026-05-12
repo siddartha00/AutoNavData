@@ -1,10 +1,36 @@
 import rclpy
+from irobot_create_msgs.msg import HazardDetectionVector
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.executors import MultiThreadedExecutor
 from nav2_msgs.action import NavigateToPose
 from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import PointCloud2
+from std_msgs.msg import Header
 import numpy as np
 import cv2
+import sensor_msgs_py.point_cloud2 as pc2
+
+class BumperToPointcloud(Node):
+    def __init__(self):
+        super().__init__('bumper_mapper')
+        # TB4 bumper topic
+        self.sub = self.create_subscription(HazardDetectionVector, '/hazard_detection', self.hazard_cb, 10)
+        self.pub = self.create_publisher(PointCloud2, '/bumper_points', 10)
+
+    def hazard_cb(self, msg):
+        points = []
+        for hazard in msg.detections:
+            if hazard.type == 1: # BUMP detection
+                # Inject a point 15cm in front of the base_link
+                points.append([0.15, 0.0, 0.05]) 
+
+        if points:
+            header = Header()
+            header.stamp = self.get_clock().now().to_msg()
+            header.frame_id = 'base_link'
+            pc_msg = pc2.create_cloud_xyz32(header, points)
+            self.pub.publish(pc_msg)
 
 class FrontierNavigator(Node):
     def __init__(self):
@@ -95,7 +121,15 @@ class FrontierNavigator(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = FrontierNavigator()
-    rclpy.spin(node)
-    node.destroy_node()
+    
+    executor = MultiThreadedExecutor()
+    frontier_navigator = FrontierNavigator()
+    bumper_to_pointcloud = BumperToPointcloud()
+    executor.add_node(frontier_navigator)
+    executor.add_node(bumper_to_pointcloud)
+
+    executor.spin()
+
+    frontier_navigator.destroy_node()
+    bumper_to_pointcloud.destroy_node()
     rclpy.shutdown()
