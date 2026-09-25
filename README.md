@@ -19,7 +19,7 @@ An autonomous exploration stack for a simulated TurtleBot 4. The robot builds a 
 ## How autonomous navigation works
 
 ```mermaid
-flowchart LR
+flowchart TB
   lidar["LiDAR: /scan"] --> slam["SLAM Toolbox"]
   slam --> map["Occupancy grid: /map"]
   map --> frontier["Frontier navigator"]
