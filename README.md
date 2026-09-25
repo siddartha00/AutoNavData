@@ -20,17 +20,17 @@ An autonomous exploration stack for a simulated TurtleBot 4. The robot builds a 
 
 ```mermaid
 flowchart LR
-  A[LiDAR /scan] --> B[SLAM Toolbox]
-  B --> C[Occupancy grid /map]
-  C --> D[Frontier Navigator]
-  D -->|largest frontier| E[Nav2 NavigateToPose]
-  E --> F[Planner + MPPI controller]
-  F --> G[/cmd_vel]
-  G --> H[TurtleBot 4]
-  H --> A
-  I[Bumper hazards] --> J[/bumper_points]
-  J --> K[Global costmap]
-  K --> E
+  lidar["LiDAR: /scan"] --> slam["SLAM Toolbox"]
+  slam --> map["Occupancy grid: /map"]
+  map --> frontier["Frontier navigator"]
+  frontier -->|"largest frontier"| nav2["Nav2 NavigateToPose"]
+  nav2 --> controller["Planner and MPPI controller"]
+  controller --> velocity["/cmd_vel"]
+  velocity --> robot["TurtleBot 4"]
+  robot --> lidar
+  hazards["Bumper hazards"] --> bumper["/bumper_points"]
+  bumper --> costmap["Global costmap"]
+  costmap --> nav2
 ```
 
 1. **Map the environment.** SLAM publishes an `OccupancyGrid` on `/map`. Each cell is classified as free (`0`), occupied, or unknown (`-1`).
